@@ -273,7 +273,10 @@ unsafePackAddress addr# = do
 unsafePackLiteral :: Addr# -> ByteString
 unsafePackLiteral addr# =
 #if __GLASGOW_HASKELL__ >= 809
-  PS (ForeignPtr addr# LiteralPtr) 0 (I# (cstringLength# addr#))
+  PS
+    (accursedUnutterablePerformIO (newForeignPtr_ (Ptr addr#)))
+    0
+    (I# (cstringLength# addr#))
 #else
   let len = accursedUnutterablePerformIO (c_strlen (Ptr addr#))
    in PS (accursedUnutterablePerformIO (newForeignPtr_ (Ptr addr#))) 0 (fromIntegral len)
